@@ -17,7 +17,7 @@ const port = process.env.PORT;
 
 app.use(cookieParser());
 
-app.get('/', (req, res) => {
+app.get('/workos', (req, res) => {
   res.send('Hello World!')
 })
 
@@ -25,13 +25,13 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
-app.get('/auth', (req, res) => {
+app.get('/workos/auth', (req, res) => {
   const authorizationUrl = workos.userManagement.getAuthorizationUrl({
     // Specify that we'd like AuthKit to handle the authentication flow
     provider: 'authkit',
 
     // The callback endpoint that WorkOS will redirect to after a user authenticates
-    redirectUri: 'http://localhost:3000/callback',
+    redirectUri: 'http://localhost:3000/workos/callback',
     clientId,
   });
 
@@ -39,7 +39,7 @@ app.get('/auth', (req, res) => {
   res.redirect(authorizationUrl);
 });
 
-app.get('/callback', async (req, res) => {
+app.get('/workos/callback', async (req, res) => {
   // The authorization code returned by AuthKit
   const code = req.query.code;
 
@@ -59,7 +59,7 @@ app.get('/callback', async (req, res) => {
 
   // Store the session in a cookie
   res.cookie('wos-session', encryptedSession, {
-    path: '/',
+    path: '/workos',
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
@@ -68,7 +68,7 @@ app.get('/callback', async (req, res) => {
   // Use the information in `user` for further business logic.
 
   // Redirect the user to the homepage
-  res.redirect('/');
+  res.redirect('/workos');
 });
 
 // Javascript Object Signing and Encryption (JOSE)
@@ -87,7 +87,7 @@ async function withAuth(req, res, next) {
 
   // If no session, redirect the user to the login page
   if (!session) {
-    return res.redirect('/login');
+    return res.redirect('/workos/login');
   }
 
   const hasValidSession = await verifyAccessToken(session.accessToken);
@@ -120,7 +120,7 @@ async function withAuth(req, res, next) {
 
     // Update the cookie
     res.cookie('wos-session', encryptedSession, {
-      path: '/',
+      path: '/workos',
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
@@ -131,7 +131,7 @@ async function withAuth(req, res, next) {
     // Failed to refresh access token, redirect user to login page
     // after deleting the cookie
     res.clearCookie('wos-session');
-    res.redirect('/login');
+    res.redirect('/workos/login');
   }
 }
 
@@ -156,10 +156,11 @@ async function verifyAccessToken(accessToken) {
 }
 
 // Specify the `withAuth` middleware function we defined earlier to protect this route
-app.get('/dashboard', withAuth, async (req, res) => {
+app.get('/workos/dashboard', withAuth, async (req, res) => {
   const session = await getSessionFromCookie(req.cookies);
 
   console.log(`User ${session.user.firstName} is logged in`);
+  res.send(`User ${session.user.firstName} is logged in`);
 
   // ... render dashboard page
 });
