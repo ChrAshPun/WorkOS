@@ -18,7 +18,7 @@ const port = process.env.PORT;
 app.use(cookieParser());
 
 app.get('/workos', (req, res) => {
-  res.send('Hello World!')
+  res.send('Hello World! This is a test application for WorkOS SSO')
 })
 
 app.listen(port, () => {
