@@ -28,7 +28,7 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
-app.get('/workos', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/workos', (req, res) => res.render('index'));
 
 app.get('/workos/auth', (req, res) => {
   const authorizationUrl = workos.userManagement.getAuthorizationUrl({
