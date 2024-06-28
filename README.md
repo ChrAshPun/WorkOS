@@ -3,42 +3,22 @@ https://www.youtube.com/watch?v=SvppXbpv-5k&t=187s
 https://www.cloudflare.com/learning/access-management/what-is-saml/
 https://www.ibm.com/blog/open-standards-vs-open-source-explanation/
 https://www.cloudflare.com/learning/access-management/what-is-saml/
+https://workos.com/blog/saml-2-vs-saml1#:~:text=A%20SAML%20binding%20defines%20how,communication%20between%20IdP%20and%20SP.
 
 
 ## What is SAML?
+SAML stands for Security Assertion Markup Language is an open standard for exchanging authentication and authorization data between an identity provider (IdP) and a service provider. It is commonly used for implementing Single Sign-On.
 
-SAML or Security Assertion Markup Language is the technical standard used by SSO providers to communicate that a user is authenticated. 
 SAML makes single sign-on (SSO) technology possible by providing a way to authenticate a user once and then communicate that authentication to multiple applications. The most current version of SAML is SAML 2.0.
 
-## What is "open standard"?
-From ChatGPT:
-An "open standard" in the context of SAML (Security Assertion Markup Language) refers to a publicly available set of specifications and protocols that are developed, maintained, and agreed upon by a collaborative community or standards organization. 
+The SAML Protocol has 3 Entities:
+- User Agent/Principal/Subject - The user who is trying to gain access to the application.
+- Service Provider - The application or service the user is trying to gain access to.
+- The IdP or Identity Provider - which is what stores identity data, authenticates and authorizes us nd generates the SAML assertion for the Service Provider. 
 
-Take a common example. Have you ever noticed that Wi-Fi seems to work the same with any router, phone or computer? We tend to take these types of standards for granted, but they bring huge benefits to our daily lives.
-
-Imagine if there were no standards like Wi-Fi. Every business might have its own form of wireless technology. If your favorite coffee shop had a router made by Company X, and you owned a computer made by Company Y, you might have to find another coffee shop to check your email.
-
-## The SAML Protocol has 3 Entities
-
-### User Agent/Principal/Subject
-This is almost always a human user who is trying to access a cloud-hosted application.
-
-### Service Provider
-The application or service the user is trying to gain access to.
-
-### Identity Provider
-An identity provider (IdP) stores and manages users' digital identities. Think of an IdP as being like a guest list, but for digital and cloud-hosted applications instead of an event.
-
-The Service Provider and the Identity Provider establish a trust relationship with each other. The IdP handles authentication and authorizations.
-
-The IdP will know about the Service Providers users and their attributes. The Service Provider will have it's only data on the same users.
-
-## What is SAML assertion?
-What the IdP authorizes a user, it will generate a SAML assertion and send it to the Service Provider. The user will be able to Single-Sign On to other applications.
-
-The SAML will includes a user identifier or NameID and will sign the assertion so the Service Provider can trust it.
-
-Both sides, the IdP and SP must agree on a SAML Configuration.
+2 Flows
+- IdP-Initiated flow
+- SP-Inititated flow
 
 ## SP-initiated SSO vs IdP-initiated SSO
 
@@ -64,6 +44,20 @@ IdP-initiated SSO is mostly used in enterprise environments where employees acce
 
 ***Note*** It is the User Agent that acts as the transport mechanism for the SAML Assertion. (See the idp-init.png)
 
+## What is "open standard"?
+An "open standard" in the context of SAML (Security Assertion Markup Language) refers to a publicly available set of specifications and protocols that are developed, maintained, and agreed upon by a collaborative community or standards organization. 
+
+Take a common example. Have you ever noticed that Wi-Fi seems to work the same with any router, phone or computer? We tend to take these types of standards for granted, but they bring huge benefits to our daily lives.
+
+Imagine if there were no standards like Wi-Fi. Every business might have its own form of wireless technology. If your favorite coffee shop had a router made by Company X, and you owned a computer made by Company Y, you might have to find another coffee shop to check your email.
+
+## What is SAML assertion?
+What the IdP authorizes a user, it will generate a SAML assertion and send it to the Service Provider. The user will be able to Single-Sign On to other applications.
+
+The SAML will includes a user identifier or NameID and will sign the assertion so the Service Provider can trust it.
+
+The IdP and SP must agree on a SAML Configuration.
+
 ## What are SAML 2.0 Bindings?
 https://workos.com/blog/saml-2-vs-saml1#:~:text=A%20SAML%20binding%20defines%20how,communication%20between%20IdP%20and%20SP.
 
@@ -83,3 +77,8 @@ A callback is a function that is passed as an argument to another function and i
 
 ## What is ACS URL?
 An Assertion Consumer Service URL (ACS URL) is an endpoint where an identity provider posts SAML responses.
+
+## Why choose WorkOS over open source solutions like KeyCloak?
+Open source solutions have a steeper learning curve and typically provide little guidance or customer support. WorkOS works out of the box and is ideal for businesses that need to get up and running quickly. Also SDKs or software development kits usually have built-in features that might be difficult for an inexperience developer to implement. WorkOS also provides AuthKit which abstracts the complexity of having to design the UI.
+
+If you're okay with taking the time to learn how to use the open source solution and don't have a strict deadline or a high budget, open source would be a practical choice. However, WorkOS will get you up and running quicker, has excellent documentation, and offers 24/7 customer support.
