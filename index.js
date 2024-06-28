@@ -36,7 +36,7 @@ app.get('/workos/auth', (req, res) => {
     provider: 'authkit',
 
     // The callback endpoint that WorkOS will redirect to after a user authenticates
-    redirectUri: 'http://christinapunla.dev/workos/callback',
+    redirectUri: 'https://christinapunla.dev/workos/callback',
     clientId,
   });
 
