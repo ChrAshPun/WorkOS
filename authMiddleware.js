@@ -19,7 +19,7 @@ async function withAuth(req, res, next) {
 
   // If no session, redirect the user to the login page
   if (!session) {
-    return res.redirect('/login');
+    return res.redirect('/workos');
   }
 
   const hasValidSession = await verifyAccessToken(session.accessToken);
@@ -51,7 +51,7 @@ async function withAuth(req, res, next) {
 
     // Update the cookie
     res.cookie('wos-session', encryptedSession, {
-      path: '/',
+      path: '/workos',
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
@@ -62,7 +62,7 @@ async function withAuth(req, res, next) {
     // Failed to refresh access token, redirect user to login page
     // after deleting the cookie
     res.clearCookie('wos-session');
-    res.redirect('/login');
+    res.redirect('/workos');
   }
 }
 

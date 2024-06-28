@@ -7,7 +7,7 @@ import path from 'path';
 
 // Import middleware and functions
 import { sealData } from 'iron-session';
-import { withAuth } from './authMiddleware.js';
+import { withAuth, getSessionFromCookie } from './authMiddleware.js';
 
 // Configure environment variables
 dotenv.config();
@@ -36,7 +36,7 @@ app.get('/workos/auth', (req, res) => {
     provider: 'authkit',
 
     // The callback endpoint that WorkOS will redirect to after a user authenticates
-    redirectUri: 'https://christinapunla.dev/workos/callback',
+    redirectUri: 'http://christinapunla.dev/workos/callback',
     clientId,
   });
 
@@ -79,7 +79,6 @@ app.get('/workos/callback', async (req, res) => {
 // Specify the `withAuth` middleware function we defined earlier to protect this route
 app.get('/workos/dashboard', withAuth, async (req, res) => {
   const session = await getSessionFromCookie(req.cookies);
-
   res.render('dashboard', { session, logout });
 });
 
