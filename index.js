@@ -1,29 +1,34 @@
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-
+// Import modules
+import express from 'express';
+import { WorkOS } from '@workos-inc/node';
 import cookieParser from 'cookie-parser';
-import { sealData, unsealData } from 'iron-session';
-
 import dotenv from 'dotenv';
+import path from 'path';
+
+// Import middleware and functions
+import { sealData } from 'iron-session';
+import { withAuth } from './authMiddleware.js';
+
+// Configure environment variables
 dotenv.config();
+const __dirname = path.resolve();
+const port = process.env.PORT || 3000;
+const clientId = process.env.WORKOS_CLIENT_ID;
 
-const express = require('express');
-const { WorkOS } = require('@workos-inc/node');
-
+// Initialize Express app
 const app = express();
 const workos = new WorkOS(process.env.WORKOS_API_KEY);
-const clientId = process.env.WORKOS_CLIENT_ID;
-const port = process.env.PORT;
 
+// Middleware setup
 app.use(cookieParser());
-
-app.get('/workos', (req, res) => {
-  res.send('Hello World! This is a test application for WorkOS SSO')
-})
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+app.get('/workos', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 app.get('/workos/auth', (req, res) => {
   const authorizationUrl = workos.userManagement.getAuthorizationUrl({
@@ -68,99 +73,27 @@ app.get('/workos/callback', async (req, res) => {
   // Use the information in `user` for further business logic.
 
   // Redirect the user to the homepage
-  res.redirect('/workos');
+  res.redirect('/workos/dashboard');
 });
-
-// Javascript Object Signing and Encryption (JOSE)
-// https://www.npmjs.com/package/jose
-import { createRemoteJWKSet, jwtVerify } from 'jose';
-
-// Set the JWKS URL. This is used to verify if the JWT is still valid
-const JWKS = createRemoteJWKSet(
-  new URL(workos.userManagement.getJwksUrl(clientId)),
-);
-
-// Auth middleware function
-async function withAuth(req, res, next) {
-  // First, attempt to get the session from the cookie
-  const session = await getSessionFromCookie(req.cookies);
-
-  // If no session, redirect the user to the login page
-  if (!session) {
-    return res.redirect('/workos/login');
-  }
-
-  const hasValidSession = await verifyAccessToken(session.accessToken);
-
-  // If the session is valid, move on to the next function
-  if (hasValidSession) {
-    return next();
-  }
-
-  try {
-    // If the session is invalid (i.e. the access token has expired)
-    // attempt to re-authenticate with the refresh token
-    const { accessToken, refreshToken } =
-      await workos.userManagement.authenticateWithRefreshToken({
-        clientId,
-        refreshToken: session.refreshToken,
-      });
-
-    // Refresh tokens are single use, so update the session with the
-    // new access and refresh tokens
-    const encryptedSession = await sealData(
-      {
-        accessToken,
-        refreshToken,
-        user: session.user,
-        impersonator: session.impersonator,
-      },
-      { password: process.env.WORKOS_COOKIE_PASSWORD },
-    );
-
-    // Update the cookie
-    res.cookie('wos-session', encryptedSession, {
-      path: '/workos',
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-    });
-
-    return next();
-  } catch (e) {
-    // Failed to refresh access token, redirect user to login page
-    // after deleting the cookie
-    res.clearCookie('wos-session');
-    res.redirect('/workos/login');
-  }
-}
-
-async function getSessionFromCookie(cookies) {
-  const cookie = cookies['wos-session'];
-
-  if (cookie) {
-    return unsealData(cookie, {
-      password: process.env.WORKOS_COOKIE_PASSWORD,
-    });
-  }
-}
-
-async function verifyAccessToken(accessToken) {
-  try {
-    await jwtVerify(accessToken, JWKS);
-    return true;
-  } catch (e) {
-    console.warn('Failed to verify session:', e);
-    return false;
-  }
-}
 
 // Specify the `withAuth` middleware function we defined earlier to protect this route
 app.get('/workos/dashboard', withAuth, async (req, res) => {
   const session = await getSessionFromCookie(req.cookies);
 
-  console.log(`User ${session.user.firstName} is logged in`);
-  res.send(`User ${session.user.firstName} is logged in`);
-
-  // ... render dashboard page
+  res.render('dashboard', { session, logout });
 });
+
+async function logout(req, res) {
+  // path and domain must match
+  res.clearCookie('wos-session',{path: '/workos'});
+
+  const sessionId = req.cookies['sessionid']
+
+  if (sessionId) {
+    redirect(workos.userManagement.getLogoutUrl({ sessionId }))
+  }
+
+  res.redirect('/workos');
+};
+
+app.get('/workos/reset-password', (req, res) => res.redirect('https://peaceful-peacock-26-staging.authkit.app/reset-password'));
